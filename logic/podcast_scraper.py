@@ -48,7 +48,20 @@ class PodcastScraper(WebScraping):
         """
 
         # CSS selectors
-        selectors = {}
+        selectors = {
+            "podcast_title": "ppjs__podcast-title",
+            "container": ".pod-content__list.episode-list .episode-list__wrapper",
+        }
+
+    def __load_files__(self) -> None:
+        """Show all hidden items."""
+
+        selectors = {
+            "container": ".pod-content__list.episode-list .episode-list__wrapper",
+            "load_button": "episode-list__load-more",
+        }
+
+        pass
 
     def extract_podcast(self):
         """Extracts podcast data"""
