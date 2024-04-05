@@ -1,1 +1,1 @@
-from podcast_scraper import PodcastScraper
+from logic.podcast_scraper import PodcastScraper

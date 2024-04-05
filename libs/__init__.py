@@ -1,1 +1,1 @@
-from web_scraping import WebScraping
+from libs.web_scraping import WebScraping
