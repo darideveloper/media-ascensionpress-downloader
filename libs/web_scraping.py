@@ -888,6 +888,32 @@ class WebScraping ():
         except NoSuchElementException as e:
             self.logger.error(f"Element '{selector}' not found: {e}")
 
+    def scroll_down_loop(self, selector):
+        """ Scrolls down in a loop till the bottom
+
+        Args: selector (str)
+        """
+        # Get previous height
+        prev_height = self.get_browser().execute_script("return document.body.scrollHeight")
+
+        while True:
+            # Scroll down
+            self.go_down(selector)
+
+            # Wait a few seconds to load more elements
+            time.sleep(5)
+
+            # Get current height
+            curr_height = self.get_browser().execute_script("return document.body.scrollHeight")
+
+            # Checks if we are already in the bottom
+            if curr_height == prev_height:
+                print("¡Se ha llegado al fondo de la página!")
+                break
+
+            # Update previous height
+            prev_height = curr_height
+
     def infinite_scroll(self, selector, button=None):
         """
         Scroll down infinitely until reaching the bottom of
@@ -899,6 +925,7 @@ class WebScraping ():
             button (str, optional): CSS selector of a button to click
             till it disapears instead of just scrolling down. Defaults to None.
         """
+
         # Scrolls down the whole page to load all results in the D.O.M
         if button is None:
             while True:
@@ -913,23 +940,16 @@ class WebScraping ():
                     self.logger.error(f"Element '{selector}' not found: {e}")
                     break
         else:
-            clickable = self.implicit_wait(selector)
+            # Scroll to the bottom
+            self.scroll_down_loop(selector)
 
-            while clickable:
-                # Scroll down
-                self.go_down(selector)
+            # Wait till button appear
+            self.implicit_wait(button)
 
-                # Give time to load
-                time.sleep(5)
+            # Load more elements
+            self.click_js(button)
 
-                # Click "Load More" button
-                self.click(selector)
-
-                # Reload clickable value
-                clickable = self.implicit_wait(selector)
-
-                if (clickable is False):
-                    break
+            print("clicked")
 
     def switch_to_main_frame(self):
         """

@@ -12,7 +12,7 @@ HEADLESS = os.getenv("SHOW_BROWSER") != "True"
 podcast_csv = os.path.join(os.getcwd(), "podcast.csv").replace("\\", "/")
 
 with open(podcast_csv, "r") as urls:
-    URLS = urls.read()
+    URLS = [url.strip() for url in urls.readlines() if url.strip()]
 
 if __name__ == "__main__":
     # Initialize scraper

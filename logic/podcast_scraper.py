@@ -4,7 +4,7 @@ from libs.web_scraping import WebScraping
 
 
 class PodcastScraper(WebScraping):
-    def __init__(self, headless: bool, urls: str) -> None:
+    def __init__(self, headless: bool, urls: list) -> None:
         """Starts Chrome and initializes the WebScraping class.
 
         Args:
@@ -22,10 +22,10 @@ class PodcastScraper(WebScraping):
         self.header_removed = False
 
         # Urls
-        self.urls = urls.split("\n")
+        self.urls = urls
 
         # Store data
-        self.extracted_data = {}
+        self.extracted_data: dict = {}
 
     def __get_podcast__(self) -> str:
         """Extract a URL
@@ -56,6 +56,9 @@ class PodcastScraper(WebScraping):
         # Load url
         self.set_page(url)
 
+        # Wait till page loads
+        sleep(5)
+
         # Load podcast's content
         self.__load_files__()
 
@@ -65,19 +68,21 @@ class PodcastScraper(WebScraping):
         """Show all hidden items."""
 
         selectors = {
-            "container": ".pod-content__list.episode-list .episode-list__wrapper",
+            "container": ".episode-list__wrapper",
             "load_button": ".episode-list__load-more",
         }
 
-        # TODO rewrite scroll properly
-        self.infinite_scroll(selectors["container"], selectors["load_button"])
+        # TODO add condictionals and logic
+        while True:
+            self.click(selectors["load_button"])
 
     def extract_podcast(self):
         """Extracts podcast data"""
 
         podcasts = len(self.urls)
+        print("Extracting", podcasts, "podcasts")
 
-        for _ in range(0, podcasts):
+        while self.urls:
 
             # Set podcast's url
             url = self.__get_podcast__()
