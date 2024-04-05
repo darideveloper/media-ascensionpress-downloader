@@ -30,7 +30,7 @@ class PodcastScraper(WebScraping):
     def __get_podcast__(self) -> str:
         """Extract a URL
 
-        Returns: (String) podcast url.
+        Returns: (str) podcast url.
         """
 
         # Get first value from the list
@@ -44,7 +44,7 @@ class PodcastScraper(WebScraping):
     def __loop_podcast__(self, url) -> None:
         """Loop through one podcast and extract its content
 
-        Args: (String) podcast's url.
+        Args: (str) podcast's url.
         """
 
         # CSS selectors
@@ -53,15 +53,24 @@ class PodcastScraper(WebScraping):
             "container": ".pod-content__list.episode-list .episode-list__wrapper",
         }
 
+        # Load url
+        self.set_page(url)
+
+        # Load podcast's content
+        self.__load_files__()
+
+        print("Loaded")
+
     def __load_files__(self) -> None:
         """Show all hidden items."""
 
         selectors = {
             "container": ".pod-content__list.episode-list .episode-list__wrapper",
-            "load_button": "episode-list__load-more",
+            "load_button": ".episode-list__load-more",
         }
 
-        pass
+        # TODO rewrite scroll properly
+        self.infinite_scroll(selectors["container"], selectors["load_button"])
 
     def extract_podcast(self):
         """Extracts podcast data"""
