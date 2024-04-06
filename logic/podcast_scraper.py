@@ -15,6 +15,7 @@ class PodcastScraper(WebScraping):
         Args:
             headless: (bool, optional) if true the browser will
             not be shown. Defaults to False.
+
             urls: (list) podcast urls from the podcast.csv file.
         """
 
@@ -54,9 +55,12 @@ class PodcastScraper(WebScraping):
 
         # CSS selectors
         selectors = {
-            "podcast_title": "ppjs__podcast-title",
             "contents": ".episode-list__entry",
+            "podcast_title": "ppjs__podcast-title",
             "title": ".pod-entry__title",
+            "description": ".ppjs__excerpt-content",
+            "date_published": ".pod-entry__date",
+            "mp3_link": ".ppshare-item.download .ppshare__download",
         }
 
         # Load url
@@ -77,6 +81,16 @@ class PodcastScraper(WebScraping):
 
             sleep(0.3)
             elems.set_description(f"Extracting {title}")
+
+            date_published = self.get_text(contents[num], selectors["date_published"])
+
+            contents[num].click()
+
+            sleep(3)
+
+            description = self.get_text(selectors["description"])
+
+            mp3_link = self.get_attrib("href", selectors["mp3_link"])
 
     def __load_files__(self) -> None:
         """Show all hidden items."""
