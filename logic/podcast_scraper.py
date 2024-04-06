@@ -3,8 +3,9 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from tqdm import tqdm
 
-from libs.web_scraping import WebScraping
+from libs import WebScraping
 
 
 class PodcastScraper(WebScraping):
@@ -31,7 +32,7 @@ class PodcastScraper(WebScraping):
         # Store data
         self.extracted_data: dict = {}
 
-    def __get_podcast__(self) -> str:
+    def __get_podcast__(self):
         """Extract a URL
 
         Returns: (str) podcast url.
@@ -54,7 +55,8 @@ class PodcastScraper(WebScraping):
         # CSS selectors
         selectors = {
             "podcast_title": "ppjs__podcast-title",
-            "container": ".pod-content__list.episode-list .episode-list__wrapper",
+            "contents": ".episode-list__entry",
+            "title": ".pod-entry__title",
         }
 
         # Load url
@@ -64,9 +66,17 @@ class PodcastScraper(WebScraping):
         sleep(5)
 
         # Load podcast's content
-        self.__load_files__()
+        # self.__load_files__()
 
         # Extract data
+        contents = self.get_elems(selectors["contents"])
+        elems = tqdm(range(len(contents)))
+
+        for num in elems:
+            title = self.get_text(contents[num], selectors["title"])
+
+            sleep(0.3)
+            elems.set_description(f"Extracting {title}")
 
     def __load_files__(self) -> None:
         """Show all hidden items."""
@@ -92,7 +102,7 @@ class PodcastScraper(WebScraping):
         """Extracts podcast data"""
 
         podcasts = len(self.urls)
-        print("Extracting", podcasts, "podcasts")
+        print("Working on", podcasts, "podcasts ...")
 
         while self.urls:
 

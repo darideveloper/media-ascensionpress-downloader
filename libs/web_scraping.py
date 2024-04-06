@@ -1,17 +1,19 @@
 import json
-import logging
 import os
 import time
 import zipfile
-
+import logging
 from selenium import webdriver
-from selenium.common.exceptions import (NoSuchElementException,
-                                        NoSuchFrameException, TimeoutException)
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoSuchFrameException
+
 
 current_file = os.path.basename(__file__)
 
@@ -466,19 +468,18 @@ class WebScraping ():
         # If the loop completes without finding the element, log an error
         self.logger.error(f"Timed out: Element '{selector}' not found on the page.")
 
-    def implicit_wait(self, selector) -> bool:
-        """ Waits till the element is loaded on page.
-
-        Returns: (Boolean) if element is found returns True.
-        If element is not found returns False
-        """
+    def implicit_wait(self, selector, refresh: bool = False):
         try:
             WebDriverWait(self.get_browser(), 20).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, selector))
             )
-            return True
         except Exception:
-            return False
+            if refresh is False:
+                raise Exception(
+                    "Time out exeded. The element {} is until in the page".format(selector))
+            else:
+                self.get_browser().refresh()
+                time.sleep(3)
 
     def wait_die(self, selector, time_out=10):
         """
@@ -888,45 +889,15 @@ class WebScraping ():
         except NoSuchElementException as e:
             self.logger.error(f"Element '{selector}' not found: {e}")
 
-    def scroll_down_loop(self, selector):
-        """ Scrolls down in a loop till the bottom
-
-        Args: selector (str)
-        """
-        # Get previous height
-        prev_height = self.get_browser().execute_script("return document.body.scrollHeight")
-
-        while True:
-            # Scroll down
-            self.go_down(selector)
-
-            # Wait a few seconds to load more elements
-            time.sleep(5)
-
-            # Get current height
-            curr_height = self.get_browser().execute_script("return document.body.scrollHeight")
-
-            # Checks if we are already in the bottom
-            if curr_height == prev_height:
-                print("¡Se ha llegado al fondo de la página!")
-                break
-
-            # Update previous height
-            prev_height = curr_height
-
     def infinite_scroll(self, selector, button=None):
         """
-        Scroll down infinitely until reaching the bottom of
-        the page or a specified button.
+        Scroll down infinitely until reaching the bottom of the page or a specified button.
 
         Args:
             selector (str): CSS selector of the element to scroll within.
-
-            button (str, optional): CSS selector of a button to click
-            till it disapears instead of just scrolling down. Defaults to None.
+            button (str, optional): CSS selector of a button to click instead of scrolling. Defaults to None.
         """
-
-        # Scrolls down the whole page to load all results in the D.O.M
+        # Scroll down the whole page to load all results in the D.O.M
         if button is None:
             while True:
                 try:
@@ -940,16 +911,8 @@ class WebScraping ():
                     self.logger.error(f"Element '{selector}' not found: {e}")
                     break
         else:
-            # Scroll to the bottom
-            self.scroll_down_loop(selector)
-
-            # Wait till button appear
-            self.implicit_wait(button)
-
-            # Load more elements
-            self.click_js(button)
-
-            print("clicked")
+            # Pending: implement functionality when infinite scroll requires clicking a button
+            self.logger.warning("Functionality for infinite scroll with button click is not yet implemented")
 
     def switch_to_main_frame(self):
         """
