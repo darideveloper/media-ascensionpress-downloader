@@ -1,5 +1,9 @@
 from time import sleep
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 from libs.web_scraping import WebScraping
 
 
@@ -62,19 +66,27 @@ class PodcastScraper(WebScraping):
         # Load podcast's content
         self.__load_files__()
 
-        print("Loaded")
+        # Extract data
 
     def __load_files__(self) -> None:
         """Show all hidden items."""
 
         selectors = {
-            "container": ".episode-list__wrapper",
             "load_button": ".episode-list__load-more",
         }
 
-        # TODO add condictionals and logic
+        # Load content loop
         while True:
-            self.click(selectors["load_button"])
+            try:
+                load_button = WebDriverWait(self.get_browser(), 10).until(
+                    EC.element_to_be_clickable(
+                        (By.CSS_SELECTOR, selectors["load_button"])
+                    )
+                )
+                load_button.click()
+                sleep(3)
+            except Exception:
+                break
 
     def extract_podcast(self):
         """Extracts podcast data"""
