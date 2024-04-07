@@ -5,3 +5,4 @@ podcast.csv
 .mypy_cache
 podcast/
 podcast_content.csv
+.flake8
