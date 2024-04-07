@@ -1,3 +1,4 @@
+import csv
 import os
 import re
 from time import sleep
@@ -36,6 +37,47 @@ class PodcastScraper(WebScraping):
         # Store data
         self.extracted_data: dict = {}
 
+    def __create_csv__(self) -> None:
+        """Create a CSV file if it doesn't exist and write headers."""
+        csv_file = "podcasts_content.csv"
+
+        # Define csv headers
+        headers = [
+            "podcast_title",
+            "date",
+            "title",
+            "description",
+            "mp3_filename",
+            "mp3_link",
+        ]
+
+        # Checks if csv already exists
+        file_exists = os.path.isfile(csv_file)
+
+        # Open csv in ('a') mode
+        with open(csv_file, mode="a", newline="", encoding="utf-8") as file:
+            # Create csv file writer
+            writer = csv.writer(file)
+
+            # Write headers only if csv file doesn't exists
+            if not file_exists:
+                writer.writerow(headers)
+
+    def __save_csv__(self, data: list) -> None:
+        """Write data to the CSV file.
+
+        Args: (list) data The data to write to the CSV.
+        """
+        csv_file = "podcasts_content.csv"
+
+        # Open csv in ('a') mode
+        with open(csv_file, mode="a", newline="", encoding="utf-8") as file:
+            # Create csv file writer
+            writer = csv.writer(file)
+
+            # Write data to CSV
+            writer.writerow(data)
+
     def __create_folder__(self, folder_name: str) -> str:
         """Creates a folder with the specified folder inside .podcast/.
 
@@ -52,7 +94,7 @@ class PodcastScraper(WebScraping):
 
         return folder_path
 
-    def __save_file__(self, folder_name: str, file_name: str, url: str) -> None:
+    def __save_file__(self, folder_name: str, file_name: str, url: str) -> str:
         """Save a file in the specified destiny
 
         Args:
@@ -78,6 +120,8 @@ class PodcastScraper(WebScraping):
             # Save file
             with open(file_path, "wb") as f:
                 f.write(response.content)
+
+        return file_name
 
     def __get_podcast__(self) -> None:
         """Extract a URL
@@ -115,6 +159,7 @@ class PodcastScraper(WebScraping):
         # Wait till page loads
         sleep(5)
 
+        # TODO enable this function
         # Load podcast's content
         # self.__load_files__()
 
@@ -147,7 +192,20 @@ class PodcastScraper(WebScraping):
             mp3_link = self.get_attrib("href", selectors["mp3_link"])
 
             # Download mp3
-            self.__save_file__(folder_path, title, mp3_link)
+            mp3_filename = self.__save_file__(folder_path, title, mp3_link)
+
+            # Data to write to CSV
+            data = [
+                folder_name,
+                date_published,
+                title,
+                description,
+                mp3_filename,
+                mp3_link,
+            ]
+
+            # Call the function to write data to CSV
+            self.__save_csv__(data)
 
         print("\n")
 
@@ -171,7 +229,7 @@ class PodcastScraper(WebScraping):
             except Exception:
                 break
 
-    def extract_podcast(self):
+    def extract_podcast(self) -> None:
         """Extracts podcast data"""
 
         podcasts = len(self.urls)
