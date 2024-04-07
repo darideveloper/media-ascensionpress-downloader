@@ -159,9 +159,8 @@ class PodcastScraper(WebScraping):
         # Wait till page loads
         sleep(5)
 
-        # TODO enable this function
         # Load podcast's content
-        # self.__load_files__()
+        self.__load_files__()
 
         # Extract podcast's name
         folder_name = self.get_text(selectors["podcast_title"])
