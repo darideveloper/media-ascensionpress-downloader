@@ -1,3 +1,5 @@
 .env
 __pycache__/
 podcast.csv
+.git
+.mypy_cache
