@@ -4,5 +4,5 @@ podcast.csv
 .git
 .mypy_cache
 podcast/
-podcast_content.csv
+podcasts_content.csv
 .flake8

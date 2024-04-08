@@ -123,7 +123,7 @@ class PodcastScraper(WebScraping):
 
         return file_name
 
-    def __get_podcast__(self) -> None:
+    def __get_podcast__(self) -> str:
         """Extract a URL
 
         Returns: (str) podcast url.
@@ -160,7 +160,8 @@ class PodcastScraper(WebScraping):
         sleep(5)
 
         # Load podcast's content
-        self.__load_files__()
+        # print("Loading all podcasts this will take a few minutes..")
+        # self.__load_files__()
 
         # Extract podcast's name
         folder_name = self.get_text(selectors["podcast_title"])
@@ -233,6 +234,8 @@ class PodcastScraper(WebScraping):
 
         podcasts = len(self.urls)
         print("Working on", podcasts, "podcasts ...\n")
+
+        self.__create_csv__()
 
         while self.urls:
 
